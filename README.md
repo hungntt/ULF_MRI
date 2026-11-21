@@ -115,6 +115,24 @@ diffusion).
 
 Trained checkpoints will be released with the camera-ready version.
 
+## Disclaimer
+
+- **Research use only.** This code and any models it produces are not medical devices. They have
+  not been cleared or approved by any regulatory body and must not be used for diagnosis,
+  treatment or any other clinical decision.
+- **Retention is not detectability.** Retention measures how much inserted contrast a synthesis
+  pipeline preserves under a learned degradation. It does not measure whether a reader would see
+  the lesion, and a high retention does not certify an enhancer as safe.
+- **Synthetic and transplanted lesions.** Most lesions are synthetic Gaussians, and the real MS and
+  stroke lesions are transplanted into healthy 3T scans. Neither set is confirmed pathology in
+  64 mT acquisitions, and results may not transfer to other scanners, vendors or populations.
+- **No data are redistributed.** Users must obtain every dataset from its source and follow its
+  licence or data-use agreement (ATLAS R3.0 requires one).
+- **Third-party models.** SynthSR, SynthSeg, SuperSynth, SynthStrip, SynthMorph, H2LO and GAMBAS
+  belong to their authors and keep their own licences. This repository only calls them and does
+  not redistribute their weights.
+- **No warranty.** The software is provided as is, without warranty of any kind (see `LICENSE`).
+
 ## License
 
-MIT (see `LICENSE`). The datasets keep their own licences.
+MIT (see `LICENSE`). The datasets and third-party models keep their own licences.
