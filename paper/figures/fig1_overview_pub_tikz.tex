@@ -1,0 +1,182 @@
+% Fig. 1 (MIDL, public data) -- the framework in four panels. Nature style: boxed panels with a
+% heading band, Helvetica pinned at print size, colour only for data. Drawn 1:1 at the MIDL
+% \textwidth (433.62 pt = 15.24 cm), so it is \input without scaling.
+% Tiles: figures/fig_tiles_pub.py (OpenNeuro test subject ON-HYPE03, slice row 32). Every tile is a
+% measured result. Values printed here come from figures/tiles_pub/ov_meta.json:
+%   b: retention 0.073 (erased) and 0.784 (retained) for identical 6 mm lesions at two sites;
+%   c: retention map (out_public/d3detect_T2.pt) for a faint 6 mm lesion, shown 0-0.3;
+%   d: s.d. of the four deep-ensemble members (out_public/d3qa_fold{0-3}_T2.pt), shown 0-0.18;
+%      Pearson correlation with panel c over the brain +0.23.
+% Needs: tikz (arrows.meta, positioning, calc), graphicx, amsmath.
+\begingroup%
+\renewcommand{\sffamily}{\fontfamily{phv}\selectfont}%
+\renewcommand{\bfseries}{\fontseries{b}\selectfont}%
+\def\ovdir{figures/tiles_pub}%
+\def\ovW{15.24}%
+\def\ovBh{0.46}%
+\newcommand{\ovL}{\fontsize{8}{9.6}\selectfont}%
+\newcommand{\ovM}{\fontsize{7}{8.4}\selectfont}%
+\newcommand{\ovS}{\fontsize{6}{7.0}\selectfont}%
+\definecolor{ovInk}{RGB}{0,0,0}%
+\definecolor{ovLine}{RGB}{75,75,75}%
+\definecolor{ovRule}{RGB}{185,185,185}%
+\definecolor{ovBg}{RGB}{243,244,246}%
+\definecolor{ovBand}{RGB}{241,240,232}%
+\definecolor{ovGray}{RGB}{200,200,200}%
+% Okabe-Ito, colour-blind safe; must match VERMILLION / OKABE_BLUE in fig_tiles_pub.py
+\definecolor{ovPos}{RGB}{213,94,0}%     % positive lesion difference
+\definecolor{ovNeg}{RGB}{0,114,178}%    % negative lesion difference
+\pgfdeclareverticalshading{ovviridis}{100bp}{%
+  rgb(0bp)=(0.267,0.004,0.329); rgb(25bp)=(0.267,0.004,0.329);%
+  rgb(31.25bp)=(0.278,0.176,0.482); rgb(37.5bp)=(0.231,0.322,0.545);%
+  rgb(43.75bp)=(0.173,0.447,0.557); rgb(50bp)=(0.129,0.569,0.549);%
+  rgb(56.25bp)=(0.157,0.682,0.502); rgb(62.5bp)=(0.369,0.788,0.384);%
+  rgb(68.75bp)=(0.678,0.863,0.188); rgb(75bp)=(0.992,0.906,0.145);%
+  rgb(100bp)=(0.992,0.906,0.145)}%
+\pgfdeclareverticalshading{ovmagma}{100bp}{%
+  rgb(0bp)=(0.001,0.000,0.014); rgb(25bp)=(0.001,0.000,0.014);%
+  rgb(31.25bp)=(0.113,0.065,0.277); rgb(37.5bp)=(0.317,0.072,0.485);%
+  rgb(43.75bp)=(0.513,0.148,0.508); rgb(50bp)=(0.716,0.215,0.475);%
+  rgb(56.25bp)=(0.904,0.320,0.388); rgb(62.5bp)=(0.987,0.536,0.382);%
+  rgb(68.75bp)=(0.997,0.770,0.535); rgb(75bp)=(0.987,0.991,0.750);%
+  rgb(100bp)=(0.987,0.991,0.750)}%
+% horizontal ramps: TikZ fits a 100 bp shading to the path and shows its 25-75 bp band
+\pgfdeclarehorizontalshading{ovviridish}{100bp}{%
+  rgb(0bp)=(0.267,0.004,0.329); rgb(25bp)=(0.267,0.004,0.329);%
+  rgb(32bp)=(0.278,0.176,0.482); rgb(39bp)=(0.231,0.322,0.545);%
+  rgb(46bp)=(0.173,0.447,0.557); rgb(53bp)=(0.129,0.569,0.549);%
+  rgb(60bp)=(0.278,0.729,0.440); rgb(67.5bp)=(0.678,0.863,0.188);%
+  rgb(75bp)=(0.992,0.906,0.145); rgb(100bp)=(0.992,0.906,0.145)}%
+\pgfdeclarehorizontalshading{ovmagmah}{100bp}{%
+  rgb(0bp)=(0.001,0.000,0.014); rgb(25bp)=(0.001,0.000,0.014);%
+  rgb(31.25bp)=(0.113,0.065,0.277); rgb(37.5bp)=(0.317,0.072,0.485);%
+  rgb(43.75bp)=(0.513,0.148,0.508); rgb(50bp)=(0.716,0.215,0.475);%
+  rgb(56.25bp)=(0.904,0.320,0.388); rgb(62.5bp)=(0.987,0.536,0.382);%
+  rgb(68.75bp)=(0.997,0.770,0.535); rgb(75bp)=(0.987,0.991,0.750);%
+  rgb(100bp)=(0.987,0.991,0.750)}%
+\newcommand{\ovhead}[4]{%
+  \node[anchor=base west, inner sep=0pt, font=\sffamily\bfseries\ovL] at (#1,#2) {#3};%
+  \node[anchor=base west, inner sep=0pt, font=\sffamily\bfseries\ovM] at (#1+0.33,#2) {#4};}%
+\newcommand{\ovpanel}[4]{%
+  \fill[ovBand] (#1,#4-\ovBh) rectangle (#2,#4);%
+  \draw[ovInk, line width=0.5pt] ([shift={(0.25pt,0.25pt)}]#1,#3) rectangle ([shift={(-0.25pt,-0.25pt)}]#2,#4);}%
+\newcommand{\ovband}[3]{%
+  \node[anchor=base, inner sep=0pt, font=\sffamily\bfseries\ovM] at ({#1},{#2-0.5*\ovBh-0.085}) {#3};}%
+\newcommand{\ovdivide}[3]{\draw[ovInk, line width=0.5pt] ({#1},#2) -- ({#1},#3);}%
+\newcommand{\ovhole}[4]{%
+  \draw[ovRule, fill=ovBg, dash pattern=on 1.5pt off 1pt, rounded corners=1.2pt]%
+    ($(#2)-(#3/2,#3/2)$) rectangle ++(#3,#3);%
+  \node[note, text width=#3cm-4pt] at (#2) {#4};%
+  \node[inner sep=0pt, outer sep=0pt, minimum size=#3cm] (#1) at (#2) {};}%
+\newcommand{\ovimg}[4]{%
+  \IfFileExists{\ovdir/#4}{%
+    \begin{scope}%
+      \clip[rounded corners=1.2pt] ($(#2)-(#3/2,#3/2)$) rectangle ++(#3,#3);%
+      \node[inner sep=0pt] at (#2) {\includegraphics[width=#3cm,height=#3cm]{\ovdir/#4}};%
+    \end{scope}%
+    \draw[ovRule, line width=0.3pt, rounded corners=1.2pt]%
+      ($(#2)-(#3/2,#3/2)$) rectangle ++(#3,#3);%
+    \node[inner sep=0pt, outer sep=0pt, minimum size=#3cm] (#1) at (#2) {};}%
+  {\ovhole{#1}{#2}{#3}{missing\\\texttt{\detokenize{#4}}}}}%
+\begin{tikzpicture}[
+  x=1cm, y=1cm, font=\sffamily\ovM, text=ovInk,
+  >={Latex[length=3pt,width=2.4pt]},
+  line/.style={line width=0.5pt, draw=ovLine},
+  flow/.style={line, ->},
+  lbl/.style={inner sep=0pt, align=center},
+  bold/.style={lbl, font=\sffamily\bfseries\ovM},
+  note/.style={inner sep=0pt, align=center, font=\sffamily\ovS},
+  noteL/.style={inner sep=0pt, align=left, font=\sffamily\ovS},
+]
+% Columns (cm): a [0,4.45]  b [4.65,8.15]  c [8.35,11.75]  d [11.95,15.24]; gutters 0.2.
+% Boxes y 0-3.6 (body 0-3.14, band 3.14-3.6); titles on baseline 3.82; legend y -0.48.
+\path[use as bounding box] (0,-1.05) rectangle (\ovW,4.06);
+
+% ================================ a ======================================
+\ovhead{0}{3.82}{a}{Measuring lesion retention}
+\ovpanel{0}{4.45}{0}{3.6}
+\ovband{2.225}{3.6}{Paired insertion through the pipeline}
+\ovimg{a1}{0.75,2.42}{0.85}{ov_kept_3t.png}
+\ovimg{a2}{2.22,2.42}{0.85}{ov_kept_in.png}
+\ovimg{a3}{3.69,2.42}{0.85}{ov_kept_out.png}
+\draw[flow] (a1.east) -- (a2.west) node[midway, above=0.5pt, note] {$D$};
+\draw[flow] (a2.east) -- (a3.west) node[midway, above=0.5pt, note] {$G$};
+\node[note, below=1.5pt of a1] {3T $+$ lesion};
+\node[note, below=1.5pt of a2] {64mT};
+\node[note, below=1.5pt of a3] {synthesis};
+\ovimg{a4}{0.75,1.02}{0.85}{ov_kept_dy.png}
+\ovimg{a5}{2.22,1.02}{0.85}{ov_kept_dp.png}
+\draw[flow] (a4.east) -- (a5.west);
+\node[note, below=1.5pt of a4] {$\Delta y$ inserted};
+\node[note, below=1.5pt of a5] {$\Delta p$ survived};
+\node[note] at (3.69,0.44) {Eq.~(2) regions};
+% core / ring reference regions of Eq. (2) -- a schematic, not to scale
+\begin{scope}[shift={(3.55,1.02)}]
+  \fill[ovGray!55] (0,0) circle (0.28);
+  \fill[white] (0,0) circle (0.20);
+  \fill[ovLine!70] (0,0) circle (0.105);
+  \draw[ovLine, line width=0.3pt] (0,0) circle (0.28);
+  \draw[ovLine, line width=0.3pt] (0.08,0.06) -- (0.32,0.19);
+  \draw[ovLine, line width=0.3pt] (0.18,-0.18) -- (0.32,-0.19);
+  \node[note, anchor=west] at (0.35,0.19) {core};
+  \node[note, anchor=west] at (0.35,-0.19) {ring};
+\end{scope}
+
+% ================================ b ======================================
+\ovhead{4.65}{3.82}{b}{Same lesion, opposite fates}
+\ovpanel{4.65}{8.15}{0}{3.6}
+\ovdivide{6.40}{0}{3.6}
+\ovband{5.525}{3.6}{Erased}
+\ovband{7.275}{3.6}{Retained}
+\ovimg{b1}{5.525,2.52}{1.10}{ov_lost_3t.png}
+\ovimg{b2}{7.275,2.52}{1.10}{ov_kept_3t.png}
+\node[note, below=1.5pt of b1] {3T $+$ lesion};
+\node[note, below=1.5pt of b2] {3T $+$ lesion};
+\ovimg{b3}{5.525,1.13}{1.10}{ov_lost_dp.png}
+\ovimg{b4}{7.275,1.13}{1.10}{ov_kept_dp.png}
+\node[note, below=1.5pt of b3] {$\Delta p$ survived};
+\node[note, below=1.5pt of b4] {$\Delta p$ survived};
+\node[bold] at (5.525,0.17) {$\mathcal{R}$ = 0.07};
+\node[bold] at (7.275,0.17) {$\mathcal{R}$ = 0.78};
+
+% ================================ c ======================================
+\ovhead{8.35}{3.82}{c}{A lesion-retention map}
+\ovpanel{8.35}{11.75}{0}{3.6}
+\ovband{10.05}{3.6}{$f_\theta(x,\hat{y},r,c)\rightarrow\hat{\mathcal{R}}$}
+\ovimg{c1}{9.68,1.95}{2.00}{ov_map6.png}
+\shade[shading=ovviridis] (10.86,0.95) rectangle (10.98,2.95);
+\draw[ovLine, line width=0.3pt] (10.86,0.95) rectangle (10.98,2.95);
+\node[note, anchor=west] at (11.04,2.89) {0.3};
+\node[note, anchor=west] at (11.04,1.01) {0};
+\node[note, anchor=west, rotate=90] at (11.50,1.70) {$\hat{\mathcal{R}}$};
+\node[note] at (10.05,0.44) {faint 6\,mm lesion queried\\at every location};
+
+% ================================ d ======================================
+\ovhead{11.95}{3.82}{d}{Where the uncertainty is}
+\ovpanel{11.95}{\ovW}{0}{3.6}
+\ovband{13.595}{3.6}{Deep-ensemble s.d.}
+\ovimg{d1}{13.28,1.95}{2.00}{ov_unc.png}
+\shade[shading=ovmagma] (14.46,0.95) rectangle (14.58,2.95);
+\draw[ovLine, line width=0.3pt] (14.46,0.95) rectangle (14.58,2.95);
+\node[note, anchor=west] at (14.64,2.89) {0.18};
+\node[note, anchor=west] at (14.64,1.01) {0};
+\node[note] at (13.595,0.44) {same slice, same input;\\correlation with c: $+$0.23};
+
+% ============================== legend ===================================
+\begin{scope}[key/.style={anchor=west, inner sep=0pt, text height=1.6ex, text depth=0.4ex}]
+\foreach \x/\c/\t in {0/ovPos/{Lesion difference $>$\,0}, 3.05/ovNeg/{Lesion difference $<$\,0}}{
+  \fill[\c, rounded corners=0.8pt] (\x,-0.565) rectangle ++(0.35,0.17);
+  \node[key, font=\sffamily\ovS] at (\x+0.47,-0.48) {\t};
+}
+\shade[shading=ovviridish] (6.10,-0.565) rectangle ++(0.60,0.17);
+\draw[ovLine, line width=0.3pt] (6.10,-0.565) rectangle ++(0.60,0.17);
+\node[key, font=\sffamily\ovS] at (6.82,-0.48) {Predicted retention $\hat{\mathcal{R}}$};
+\shade[shading=ovmagmah] (9.55,-0.565) rectangle ++(0.60,0.17);
+\draw[ovLine, line width=0.3pt] (9.55,-0.565) rectangle ++(0.60,0.17);
+\node[key, font=\sffamily\ovS] at (10.27,-0.48) {Ensemble s.d.};
+\draw[flow] (12.30,-0.48) -- ++(0.5,0);
+\node[key, font=\sffamily\ovS] at (12.92,-0.48) {Pipeline step};
+\node[key, font=\sffamily\ovS] at (0,-0.84) {\textbf{Note:} all tiles are measured results for a locked OpenNeuro test subject.};
+\end{scope}
+\end{tikzpicture}%
+\endgroup

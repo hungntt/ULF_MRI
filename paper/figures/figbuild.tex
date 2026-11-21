@@ -1,0 +1,18 @@
+% Builds one TikZ figure into a tightly cropped PDF, using the same class and fonts as the paper.
+% Run from paper/ (figures/build_figs.sh does this):
+%   pdflatex "\def\figfile{figures/fig1_overview_pub_tikz}\input{figures/figbuild.tex}"
+% \endlinechar=-1 drops the spaces that unterminated source lines (a \definecolor without a
+% trailing %) would add to the box, so the PDF is exactly the 15.24 cm picture.
+\documentclass[anon]{midl}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
+\pagestyle{empty}
+\begin{document}
+\setbox0=\hbox{{\endlinechar=-1 \input{\figfile}}}%
+\typeout{FIGBOX wd=\the\wd0 ht=\the\ht0 dp=\the\dp0}%
+\pdfpagewidth=\wd0
+\pdfpageheight=\dimexpr\ht0+\dp0\relax
+\shipout\vbox{\kern-1in\hbox{\kern-1in\box0}}
+\end{document}
