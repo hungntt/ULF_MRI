@@ -83,9 +83,22 @@ bash exp/run_review_D.sh          # SynthSR, SuperSynth, GAMBAS
 bash exp/run_offlesion.sh         # off-lesion structure
 ULF_DATA=datasets/npy_public ULF_OUT=out_public python -I exp/d3coupling.py   # T1/T2 contrast sweep
 
+# 3b. seed averaging, selection checks and baselines (App. I); same environment variables as above
+python -I exp/coauthor_stats.py          # seed-averaged retention, cross-fitted selection, leave-family-out,
+                                         # metric association, subject bootstrap (from the d3stage rows)
+bash exp/run_coauthor_kscale.sh          # erasure under k-scaled D, all 36 models, both input arms (GPU)
+python -I exp/coauthor_kscale.py         # its summary
+bash exp/run_coauthor_inpaint.sh         # inpainting error propagated into the real-MS results (GPU)
+python -I exp/coauthor_darkbright.py run # dark against bright lesions at the same sites (GPU)
+python -I exp/coauthor_seg_train.py && python -I exp/coauthor_baseline.py   # handcrafted map baseline
+python -I exp/trace_detect_denominator.py regen   # what one record of the map test set is (GPU)
+python -I exp/audit_ties.py && python -I exp/registry_table.py && python -I exp/lesion_table.py
+                                         # ties at the threshold, model sets, lesion instances
+
 # 4. tables, plots and tiles of the paper
 ULF_OUT=out_public python -I paper/figures/make_tabs_pub.py      # Tables 2-3, App. B-D
-ULF_OUT=out_public python -I paper/figures/make_tabs_review.py   # App. F-J
+ULF_OUT=out_public python -I paper/figures/make_tabs_review.py   # App. F-H, J-K
+ULF_OUT=out_public python -I paper/figures/make_tabs_coauthor.py # App. I
 ULF_OUT=out_public python -I paper/figures/make_plots_pub.py     # Figs. 2-4 (data panels)
 ULF_OUT=out_public ULF_DATA=datasets/npy_public python -I paper/figures/fig_tiles_pub.py           # Fig. 1 tiles
 ULF_OUT=out_public ULF_DATA=datasets/npy_public python -I paper/figures/fig_polarity_tiles_pub.py  # Fig. 3a tiles
@@ -106,14 +119,39 @@ bash paper/figures/build_figs.sh                                 # TikZ -> paper
 | App. F, validity of `D` | `exp/d1_physcheck.py`, `exp/d3h2lo.py` | `d1_physcheck.json`, `d3h2lo_T2.json` |
 | App. G, real MS and stroke lesions | `exp/d3reallesion.py`, `exp/d3atlas.py` | `d3reallesion.json`, `d3atlas_T1.json` |
 | App. H, robustness | `exp/d3robust.py` | `d3robust_T2.json` |
-| App. I, off-lesion structure | `exp/d3offlesion.py` | `d3offlesion_T2.json` |
-| App. J, released models | `exp/d3pretrained.py` | `d3pretrained*.json` |
+| App. I, seeds, selection checks, k-scaled erasure, inpainting error, map baseline, dark vs bright | `exp/coauthor_*.py`, `exp/trace_detect_denominator.py` | `coauthor_*_T2.json`, `coauthor_kscale_rows_*_T2.npz` |
+| App. J, off-lesion structure | `exp/d3offlesion.py` | `d3offlesion_T2.json` |
+| App. K, released models | `exp/d3pretrained.py` | `d3pretrained*.json` |
 
 Enhancers are trained in `exp/baselines.py` (U-Net variants, pix2pix, LoHiResGAN), `exp/d1.py`
 (`D` and corpus pretraining), `exp/d3.py` (Gaussian and quantile heads) and `exp/d3v2.py` (wavelet
 diffusion).
 
 Trained checkpoints will be released with the camera-ready version.
+
+`tests/` holds reproduction checks for the App. I scripts (`python -m pytest tests` from the repository root, with
+`ULF_DATA=datasets/npy_public ULF_OUT=out_public ULF_SCRATCH=datasets/scratch_public`). They compare each rerun with
+the stored outputs, for example the k = 1 replay against the `d3stage` rows. LoHiResGAN's forward pass was not
+deterministic on the GPU used (identical calls differed by up to 0.023), so it is compared on pooled values.
+
+The App. I analyses were scored against 13 expectations recorded beforehand (the `check_e*` functions); 12 held.
+All refer to the OpenNeuro test split through `D` (unit 1), synthetic arm, unless stated.
+
+| id | expectation | held |
+|---|---|---|
+| E6a | Seed-averaged ranking puts pix2pix first and U-Net L1+SSIM last. | yes |
+| E6b | Erasure of the seed-mean retention and the mean per-seed erasure differ by at most 5 pp per five-seed configuration. | yes |
+| E6c | Seed s.d. of mean R is at most 0.02 for the four non-adversarial five-seed configurations. | yes |
+| E7a | The SynthSeg pick erases at least 10 pp more than the retention leader under both estimands, and dR is at least 0.05. | yes |
+| E7b | Cross-fitted: pix2pix leads in 5 of 5 folds, the Dice pick is corpus-calibrated in at least 4, dE is at least 10 pp and positive in 5 of 5 subjects. | yes |
+| E8a | rho of SSIM, PSNR and Dice with retention lies within 0.2 of 0.34, 0.23 and 0.25, and each interval includes 0. | yes |
+| E8b | Without the corpus family, the new SynthSeg pick still erases at least 5 pp more than pix2pix. | yes |
+| E9a | In the acquired-input arm, dE is at least 8 pp on both OpenNeuro units and Zenodo. | no (7.7-7.9 pp on the OpenNeuro units, seed-mean estimand) |
+| E9b | The subject-bootstrap 95% interval of dE on the test split excludes 0. | yes |
+| E10a | k-scaling lowers every configuration's erasure by 3-15 pp, keeps the ranking (rho >= 0.9), and dE stays >= 8 pp in both arms. | yes |
+| E11a | Under the inpainting-error perturbation, median rho >= 0.95 and the SynthSeg-pick erasure stays within 5 pp of 82%. | yes |
+| E12a | The best handcrafted map baseline is at least 0.03 AUROC below the map and above radius alone, and below the map within every radius. | yes |
+| E13a | Dark lesions are erased more than bright ones in every local-intensity stratum, by at least 15 pp pooled. | yes |
 
 ## Disclaimer
 
