@@ -106,23 +106,6 @@ ULF_OUT=out_public ULF_DATA=datasets/npy_public python -I paper/figures/fig5_qua
 bash paper/figures/build_figs.sh                                 # TikZ -> paper/figures/pdf/
 ```
 
-## Where each result comes from
-
-| paper | script(s) | result file(s) in `out_public/` |
-|---|---|---|
-| Eq. 1–2, retention | `exp/d3zoo.py`, `exp/d3lesiontype.py` | `d3zoo*_T2.json`, `d3lesiontype*.json` |
-| Eq. 3, retention map | `exp/d3detect.py`, `exp/d3detect_eval.py`, `exp/d3external.py` | `d3detect_T2*.pt`, `d3external_summary.json` |
-| Table 2, cross-cohort results | `exp/d3external_summary.py`, `exp/d3lesiontype.py`, `exp/d3zoo_stats.py` | `d3external_summary.json`, `d3zoo_stats*_T2.json` |
-| Fig. 2a, location vs enhancer | `exp/d3xarch.py` | `d3xarch_rows_T2.json` |
-| Fig. 3, Table 3, polarity | `exp/d2.py`, `exp/d3aug.py`, `exp/d3lesiontype.py`, `exp/d3coupling.py`, `exp/d3synthsr.py` | `d3lesiontype.json`, `d3coupling.json` |
-| Fig. 4, metric-based selection | `exp/d3zoo.py`, `exp/d3synthseg.py`, `exp/d3zoo_stats.py` | `d3zoo_stats_T2.json` |
-| App. F, validity of `D` | `exp/d1_physcheck.py`, `exp/d3h2lo.py` | `d1_physcheck.json`, `d3h2lo_T2.json` |
-| App. G, real MS and stroke lesions | `exp/d3reallesion.py`, `exp/d3atlas.py` | `d3reallesion.json`, `d3atlas_T1.json` |
-| App. H, robustness | `exp/d3robust.py` | `d3robust_T2.json` |
-| App. I, seeds, selection checks, k-scaled erasure, inpainting error, map baseline, dark vs bright | `exp/coauthor_*.py`, `exp/trace_detect_denominator.py` | `coauthor_*_T2.json`, `coauthor_kscale_rows_*_T2.npz` |
-| App. J, off-lesion structure | `exp/d3offlesion.py` | `d3offlesion_T2.json` |
-| App. K, released models | `exp/d3pretrained.py` | `d3pretrained*.json` |
-
 Enhancers are trained in `exp/baselines.py` (U-Net variants, pix2pix, LoHiResGAN), `exp/d1.py`
 (`D` and corpus pretraining), `exp/d3.py` (Gaussian and quantile heads) and `exp/d3v2.py` (wavelet
 diffusion).
@@ -133,25 +116,6 @@ Trained checkpoints will be released with the camera-ready version.
 `ULF_DATA=datasets/npy_public ULF_OUT=out_public ULF_SCRATCH=datasets/scratch_public`). They compare each rerun with
 the stored outputs, for example the k = 1 replay against the `d3stage` rows. LoHiResGAN's forward pass was not
 deterministic on the GPU used (identical calls differed by up to 0.023), so it is compared on pooled values.
-
-The App. I analyses were scored against 13 expectations recorded beforehand (the `check_e*` functions); 12 held.
-All refer to the OpenNeuro test split through `D` (unit 1), synthetic arm, unless stated.
-
-| id | expectation | held |
-|---|---|---|
-| E6a | Seed-averaged ranking puts pix2pix first and U-Net L1+SSIM last. | yes |
-| E6b | Erasure of the seed-mean retention and the mean per-seed erasure differ by at most 5 pp per five-seed configuration. | yes |
-| E6c | Seed s.d. of mean R is at most 0.02 for the four non-adversarial five-seed configurations. | yes |
-| E7a | The SynthSeg pick erases at least 10 pp more than the retention leader under both estimands, and dR is at least 0.05. | yes |
-| E7b | Cross-fitted: pix2pix leads in 5 of 5 folds, the Dice pick is corpus-calibrated in at least 4, dE is at least 10 pp and positive in 5 of 5 subjects. | yes |
-| E8a | rho of SSIM, PSNR and Dice with retention lies within 0.2 of 0.34, 0.23 and 0.25, and each interval includes 0. | yes |
-| E8b | Without the corpus family, the new SynthSeg pick still erases at least 5 pp more than pix2pix. | yes |
-| E9a | In the acquired-input arm, dE is at least 8 pp on both OpenNeuro units and Zenodo. | no (7.7-7.9 pp on the OpenNeuro units, seed-mean estimand) |
-| E9b | The subject-bootstrap 95% interval of dE on the test split excludes 0. | yes |
-| E10a | k-scaling lowers every configuration's erasure by 3-15 pp, keeps the ranking (rho >= 0.9), and dE stays >= 8 pp in both arms. | yes |
-| E11a | Under the inpainting-error perturbation, median rho >= 0.95 and the SynthSeg-pick erasure stays within 5 pp of 82%. | yes |
-| E12a | The best handcrafted map baseline is at least 0.03 AUROC below the map and above radius alone, and below the map within every radius. | yes |
-| E13a | Dark lesions are erased more than bright ones in every local-intensity stratum, by at least 15 pp pooled. | yes |
 
 ## Disclaimer
 
